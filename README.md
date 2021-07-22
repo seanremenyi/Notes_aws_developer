@@ -283,10 +283,69 @@ Amazon's DNS service
 can map a domain name that you own to ec2s, s3 buckets, load balancer
 
 
+## AWS CLI
+Least privelidge principle - least amount of access to do their job
+Use groups is best practice -Use policies to groups and iam users to groups
 
+secret access key can be shown once, will have to delete regenerate and use aws configure to use new one
+supports linux, maco, windows
+each dev should have their own, don't share
 
+pre installed on ec2s
 
+### Pagination
+contro the nuber of items included in the output when you run cli command
+by default uses a "page size" of 1000
+for a 3000 item thing, cli needs to make 3 api calls but will show everything
+default pagesize of 100 might be too high might lead to timed out errors
+fix default page size using flag --page-size to request smalled number of items
+cli still retrieves the full list but performs a large number of API calls in the background and retrieves a smalled number of items with each call
+--page-size 100
+--max-items 100 (returns fewer items)
 
+## Roles
+IAM -> roles -> create role -> trusted idendity -> EC2 -> add permissions policy 
+->launch instance, add IAM role
+Roles are preferred options from security perspective
+always avoid hard coding credentials
+policies control roles permissions
+can update a policy attached to a role
+can attach and detach roles without terminating ec2
+
+## RDS
+relational databse service
+
+tables - traditional spreadsheet
+rows data items
+columns fields in the data space
+
+when to use: Generealy used for OLTP (online transaction Processing) workloads
+
+compatible with 
+SQL Server (microssoft)
+Oracle
+MySQL
+PostgreSQL
+MariaDB
+Aurora (amazon)
+
+up and running in minutes (used to take for all this take 8 days manually or longer)
+multi az
+failover compatability
+automated backups
+
+OLTP: processes data from transactions in real-time, eg customer orders, banking transactions, payments and booking systems
+data processing and completing large amount of transaction in rel time
+
+OLAP (Online Analytics Processing): 
+process complex queries to anazyze historical data e.g. net profit figures from the past 3 years and sales forecasting
+all about data analysis using l arge complex queries that take long t ime to complete
+ex. net profit analysis
+large amounts of data
+analysis not transactional
+
+RDS is for OLTP workloads
+not suitable for OLAP (use redshift)
 
 
 
