@@ -152,8 +152,135 @@ Aws says:
 - Recommend D instances for running large-scale data-warehouse or parallel file systems
 
 
+AMI - Amazon machine image
+includes OS, utilities/libraries 
+
+## EBS
+
+Elastic Block Store
+
+Storage volumes (disks) you can attach to your ec2 instance
+When you first launch ec2 theres a volume attached where the os lives
+
+can use to store data, run os, database, file systems, etc.
+
+1. Designed for mission critical workloads
+2. Highly Available (automaticall replicated within single AZ)
+3. Scalable (dynamically increase capacity or change type with no downtime or performance to live systems
+
+Types:
+General Purpose SSD
+GP2
+
+- general purpose, a balance of price and performance
+- 3 IOPS per GB up to a max of 16,000 IOPS per volume
+- gp volumes smaller than 1tb can burst up to 3000 IOPS
+- Good for boot volumes or development and testing applications which are not latency sensitive
+
+Provisioned IOPS SSD
+io1
+
+- high performance
+- most expensive
+- up to 64 IOPS per volume, 50 iops/gb
+- use if you need more than 16000 IOPS
+- for I/O intensive applications like large databases and latency sensitive workloads
+
+io2
+
+- latest generation
+- higher durability and more IOPS
+- same price as io1
+- 500 IOPS/gb
+- up to 64,000
+- 99.999%durability whereas rest of ebs volumes are designed for 99.9%
+- same use cases for io1 but for also those with a higher durability
+
+Throughput Optimized HDD
+st1
+
+- hard disk disk volume
+- low-cost
+- for huge amounts of data (big data, data warehouse, etl, log processing)
+- Baseline throughput of 40MB/TB
+- ability to burst to 250 MB/TB
+- Maximum throughput of 500 MB/s per volume
+- frequently-accessed, throughput-intensive workloads
+- cost effecctive way to store mountains of data
+- cannot be a boot volume
+
+Cold HDD
+sc1
+
+- lowest cost option
+- Baseline throughput of 12 MB/tb
+- burst up to 80 MB/tb
+- Max 250 MB/s per volume
+- good choice for colde data requiring fewer scans per day
+- good for applications that need th lowest cost and performance is not a factor
+- cannot be a boot volume
+
+IOPs
+- Measure the number of read/write operations per second
+- Metric for quick transations, low latence apps, transactional workloads
+- Ability to action reads an writes very quickly
+- Choose provisioned
+
+Throughput:
+- Measure the nuber of bits read or writen per second
+- Metric for large datasets, large I/O sizes, complex queries
+- ability to deal with large datasets
+- Choose throughput optimized
+
+if the volume is from a snapshot
+if you create a volume from an encrypted snapshot then the volume is automatically encrypted
+same for unencrypted
 
 
+## ELB
+Elastic Load Balancer
+a load balancer istributes network traffic across a group of servers
+
+Application LB
+- http https
+- Operate at layer 7
+- application-aware
+- can do advanced request routing
+- can look at http header
+
+Network LB
+- tcp
+- high performance
+- where extreme performance is required
+- operate at layer 4, transport layer
+- millions of request per second while ultra low latencies
+- most expensice options
+
+Classic
+- can do both
+- legacy
+- support x-forwarded-for headers and stick sessions for layer 7 features
+- supports layer 4 tcp as well
+
+Gateway LB
+- using Geneve
+
+
+X-Forwarded-For header: identify the originating IP address of the client connecting through a load balancer
+finds ipv4 address of end user
+app only will see ip of load balancer but maybe want to kknow where the ip is coming from (whitelisting/blacklisting/geolocation)
+will pass the originating ip address to the application
+
+errors:
+504 Gateway timeout: 
+- the target (downstream server, lambda, database) could not establish a connection
+- application is having issues
+- Will then need to find where the application is failing to resolve
+
+## Route 53
+Amazon's DNS service
+
+can map a domain name that you own to ec2s, s3 buckets, load balancer
 
 
 
