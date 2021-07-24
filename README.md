@@ -1,5 +1,6 @@
 ﻿# AWS Developer Associate Notes
  
+ 
  ## IAM
  
  Identity and Access Management
@@ -281,6 +282,8 @@ errors:
 Amazon's DNS service
 
 can map a domain name that you own to ec2s, s3 buckets, load balancer
+Hosted Zone - A container for DNS records for your domain.
+Alias - Allows you to route traffice addressed to the zone apex, or the top of the DNS namespace e.g. googl.com and send it to the resource within AWS, e.g. an elastic load balancer
 
 
 ## AWS CLI
@@ -346,6 +349,169 @@ analysis not transactional
 
 RDS is for OLTP workloads
 not suitable for OLAP (use redshift)
+
+Multi-AZ not available in free tier
+
+### Multi AZ
+it is an exact copy of your production database in another availability zone
+you have a primary rds (ex us-east-1a) production (connected to application (ec2s))
+and a standby rds in a different az (ex us-east-1b) replicated from primary invisbile and inaccesible from accplication servers. if something goes wrong with primary (hardware issue/az issue) we have this standby and rds with automatically failover to this standby instance
+AWS handles all the replication between, no config necessary
+Write to primary will automatically sync to standby rds
+All rds (SQL server, oracle, MySQL, PostgreSQL, MariaDB) can enable multi az
+Main pupose :provide resilience and keep application running if failure/or maintenance. RDS will automaticall failover to standby so operations can resume quickly
+Disaster recovery, not for scaling out/improving performance (application servevrs can't connect to primary and standby rds at the same time)
+An exact copy of your production db in another AZ
+used for DR
+in event of failure RDS will automatically failover to standby
+
+
+
+### Read Replicas
+A read only copy of the primary database
+Great for read heavy workloads, take read workloads off of primary
+can be in the same AZ as primary, cross az (different AZ) or cross region(different region)
+each read replica has its own DNS endpoint, different to that of the primary
+Read Replicas can be promoted to their own database however this will break the replication from the primary database will give us 2 completely independent databases with read/write capabilities.
+Scaling read performance (used for scaling, NOT for DR)
+Requires automatic BAckup enabled (enabled by default)
+Multiple read replicas are supported (up to 5 read replicas to each databse instance
+Read only copy of your primary in the same AZ, cross AZ or cross region
+used to inscrease or scale read performance
+great for heavy workloads and takes the oad off your primary db for read-only workloads,  e.g. business intelligence reporting jobs.
+
+
+### RDS Backups
+1. Database snapshots
+manual, ad-hoc, user-initated. Provides a snapshot of the storage volume attached to the DB instance.
+not automated, user-initiated
+no retention period (not deleted even after you delete the original RDS instance, including any automated backups) 
+backup to a known state. Can restore to that specific state at any time
+
+2. Automated Backup
+Enabled by default
+Creates daily backups or snapshots that run during a backup window that you define
+Transaction logs are used to replay transactions
+Allows a Point-in-time Recovery. recover your db to any point in time within your defined "retention period of 1-35 days.
+Full daily backup. RDS takes a full daily backup/snapshot into an s3 and also stores transaction logs throughout the day
+Recovery. When you do a recovery, AWS will first choose the most recent daily backup and then apply transaction logs relevant to that day up to the recovery point
+stored in s3
+free storage space equal to the size of your backup 
+Defined backup window. during this time storage I/o may be suspended for  few seconds while the bckup process initializes and you may experience increased latency at this time
+
+
+General
+Restored version of the database wil always be a new RDS instance with a new DNS endpoint
+Encryption at rest. Can enable the encryption in the console with encryption option at creation time
+Encryption is done using aws' KMS service. AES-256 encryption
+This encryption includes all the underlying storage, automated backups, snapshots, logs and read replicas
+Can only be enabled at creation time. and you canot enable encryption on an uncrypted RDS DB instance (and vice cersa)
+To do this. Take a snapshot of an encrypted DB, encrypt the snapshot then restore that db from that snapshot and the db will be encrypted
+only enable at creation can not do later, neet to ^^
+
+
+
+Automated snapshot
+automated by default, you define backup window, daily backup, point-in-time snapshot plus transaction logs
+retention period 1-35 days
+Can be used to recorer your database to any point in time within that retention period
+
+DB snapshot (manual)
+user initiated, ad hoc, point-in-time snapshot only, no retention period, stored indefinitely
+Used to backup your DB instance to a known state and restore to that specific state at any time, e.g. before making a change to the database
+
+
+## Elasticache
+Memory is faster than disk
+in-memory cache (key-Value)
+makes it easy to deploy, operate and scale in-memory cache in the cloud
+Improves db performace it allows you to retrieve information from fast, in-memory caches instead of sower disk-based storage.
+Great for read-heavy Db workloads
+Caching the results of I/O intenensive db queries also for retaining session data for distributed applications
+can use elasticache cluster to cache freequently accessed data for faster application, application servers can retrwieve data from there
+
+### Memcached
+Great for object caching
+Scales horizontally but no persistence, multi az or failover.
+good choice for basic caching and you want you caching model to be as simple as possible.
+in memory key-value data store
+if object cahing is your primary goal
+keep it as simple as possible
+dont need persistence/multi az
+dont need to support advanced data types or sorting
+
+### Redis
+More sophisticated solution with enterprise features like persistence, replication, Multi-AZ and failover
+Supports sorting and ranking data (e.g. for gamin leaderboards) and complex data types like lists and hashes
+in memory key-value data store
+performing data sorting and ranking, ,such as leaderboards 
+have advanced data types, such as lists and hashes
+need data persistence
+need multi az
+
+
+
+if a db is under a lot of stress, know when to use elasticache, if db is particular read heavy and data is not changed very frequently (elasticache will struggle to have the latest data available)
+When elasitcache can't help
+wont help alleviate heavy write loads (will need to scale up db)
+Olap queries(think about using redsihft instead)
+
+
+## Systems Manager Parameter store
+Scenario:
+Needs a place to store parameters for your application for example, licence keys, db connection information, user names and passwords, etc.
+This info needs to be passed to your ec2 as a bootstrap script
+avoid harcoding sensitive info
+maintain the confidentiality of the information  
+
+store confidential info 
+Plain text or encryted using kms
+can refernence your parameters using the parameter name (e.g. bootstrap script)
+integrated with AWS service, you can use Parameter store with EC2, Cloud Formation, Lambda, Codebuild, CodePipeline and Code Deploy
+
+## S3
+simple storage service
+provides secure, durable and highly-scalable object storage.
+Simple
+scalable
+Object-based storage - manages objects rather than in file systems or datablocks
+can upload any files, photos,videos, code, documents,text file
+cannot be used to run an operating system
+
+1. Unlimited storage
+total vloume of data and the number of objects you can store is unlimited
+2. objects can range in size from a minimum of 0 bytes to a max of 5 tb
+3. S3 buckets
+stores files in buckets (similar to folders) 
+
+working with s3 buckets
+1. Universal Namespace
+all aws accounts share the s3 namespace. Each s3 bucket name is globally nuique
+Example:
+https://{bucket-name}.s3.Region.amazonaws.com/{key-name}
+uploading files
+when you upload using the cli you will receive an http code of 200 if its a successful upload
+
+S3 objects are
+Key: The name of the object
+Value: This is the data itself, which is made up of a sequence of bytes
+Version ID: Important for storing multiple versions of the same object
+Metadata: Data about the data you are storing, e.g. content-type, last modified, etc.
+
+S3 is a saf place to store your files
+data is spread across multiple devices and facilities to ensure availability and durability 
+Highly Available and highly Durable.
+Built for availability - 99.95% - 99.99% service availability depending on the s3 tier
+Built for durability (data being stored safely and not being corrupted) Designed for 99.999999999% (11 9s) durability for data stored in s3
+
+Tiered storage (different tiers for different uses/costs)
+Lifecycle Management (transition to different tiers or even delete objects) 
+Versioning (all versions of an object are stored and can be retrieved, including deleted objects)
+
+Secure:
+Server side encryption: You can set default encryption on a bucket to encrypt all new objects when they are stored in the bucket)
+Access Control Lists: Define which aws accounts or groups are granted access and the type of access. You can attach s3 ACLs to individual objects within a bucket.
+Butcket Policies: S3 bucket policies specify what actions are allowed or denied (e.g allow user Alice to Put but not delete objects in the bucket)
 
 
 
