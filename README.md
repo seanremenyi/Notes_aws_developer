@@ -477,7 +477,7 @@ scalable
 Object-based storage - manages objects rather than in file systems or datablocks
 can upload any files, photos,videos, code, documents,text file
 cannot be used to run an operating system
-
+largest object that can be uploaded in a single PUT is 5 gb
 1. Unlimited storage
 total vloume of data and the number of objects you can store is unlimited
 2. objects can range in size from a minimum of 0 bytes to a max of 5 tb
@@ -488,7 +488,7 @@ working with s3 buckets
 1. Universal Namespace
 all aws accounts share the s3 namespace. Each s3 bucket name is globally nuique
 Example:
-https://{bucket-name}.s3.Region.amazonaws.com/{key-name}
+https://{bucket-name}.s3-Region.amazonaws.com/{key-name}
 uploading files
 when you upload using the cli you will receive an http code of 200 if its a successful upload
 
@@ -513,12 +513,132 @@ Server side encryption: You can set default encryption on a bucket to encrypt al
 Access Control Lists: Define which aws accounts or groups are granted access and the type of access. You can attach s3 ACLs to individual objects within a bucket.
 Butcket Policies: S3 bucket policies specify what actions are allowed or denied (e.g allow user Alice to Put but not delete objects in the bucket)
 
+signed urls/signed cookies used for if wanting to make sure authorized users only have access
 
 
+## Serverless
+Serverless allow you to run application code in cloud without having to worry about managing any servers
+AWS handles the infrastructure management tasks so that you can focus on writing code
 
+Aws takes care of
+Capacity provisioning
+patching
+auto scaling
+highg availability
+you just focus on writing code
 
+Gives competitve Advantage
+Speed to market
+By eliminating the over head servers, you can release code quickly and get yyour application to market faster
+Super Scalable
+You can have a million users on your website and everything will scale automatically
+Lower Costs
+You never pay for over-provisioning. Serverlesss applications are event-driven and you are only charged when your code is executed
+Focus on your application. 
+Aws offers a range of serverless technologies which integrates seamlessly. Allowing you to focus on building great applications.
 
+Lambda
+Enables you to run your code as functions withhout provisioning any servers
+SQS (simple queue service)
+A message queuing service that allows you to decouple and scale your applications
+SNS (simple notification srvice)
+A messaging service for sending text messages, mobile notifications and emails
+API Gateway
+Allows you to create, publish and secure APIs at any scale
+DynamoDB
+Fully managed NoSQL database
+S3
+Object storage and web hosting
 
+## Lambda
+
+Serverless Compute
+Run your code in AWS without provisioning any servers
+Labda takes care of everything required to run your code, including the runtime environment
+Supported Languages
+Java, Go, PowerShell, Noda.js, C#, Python and Ruby
+Upload your code to lambda and you are good to go.
+Enterprise Features.
+Auto-scaling and high availability are already baked-in to the Lambda service
+
+You are charged based on the number of requests, their duration and the amount of memory used by your lambda function
+1. Requests
+first 1 million requests per month are free
+then $0.20 per month per 1 million requests
+2. Duration
+You are charged in millisecond increments
+The price depends on the amount of memory you allocate to your lambda function
+3. Price per GB-second
+$0.00001667 per GB-second 
+a function that uses 512 MB and runs for 100ms  0.5Gbx 0.1 s = 0.05 GB-s, we would be charged $0.0000000083 
+first 400,000GBs per month are free
+
+Event driven architecture
+1. Event driven
+Lambda functions can be automatically triggered by other AWS services or called directly from any web or mobile app
+2. Triggered by events
+These events could be changes made to data in an s3 bucket, or Dynamodb table
+3. Triggered by User Requests.
+You can use API Gateway to configure an HTTP endpoint allowing you to trigger your function at any time using an HTTP request
+
+AWS services that can invoke Lambda functions.
+dynamoDB, Kinesis, SQS, Application Load Balancer, Api gateway, Alexa, Cloudfront, S3, SNS, SES, Cloudformation, CloudWatch, CodeComomit, CodePipeline 
+
+Extremely cost effective
+Pay only when your code executes
+Continuous Scaling
+Lambda scales automatically
+Event Driven
+Lambda functions are triggered by an event or action
+Independent
+Lambda functions are independent. Each event will trigger a single function
+it is Serverless technology
+know triggers
+
+## API Gateway
+application programming Interface
+We use APIs to interact with web applications and applications use APIs to communicate with each other
+API gateway
+1. Ability to publish, maintain and monitor APIs
+API gateway is a service which allows you to publish, maintain, monitor and secure APIs at any scale
+2. A Front Door
+An API is like a front door for applications to access data, business logic, or functionality from your backend services, e.g. applications running on ec@, Lambda
+3. Supported API types
+RESTful APIs are optimized for stateless, serverless workloads
+Websocket APIs are for real-time, two-way, stateful communication e.g., chat apps
+
+Restful Apis
+REpresentational State Trnsfer
+Optimized for serverless and web applications
+Stateless : Nothing is persisted in the application or the API
+support JSON (a notation language that uses key-value pairs)
+
+API gateway provides a single endpoint for all client traffic interacting with the bakend of your application
+
+it allows you to connect to applications running on Lambda, EC2 or elastic beanstalk and services like DynaoDB and Kinesis
+
+Supports Multiple Endpoints and targets
+Send each API Endpoint to a different target
+
+Supports multiple versions
+Allows you to maintain multiple versions of your API so you can have different versions for your dev, testing and prod environments
+
+Serverless :So cost effective and scalable
+Cloudwatch: API Gateway logs API calls, latencies and error rates to CloudWatch
+Throttling: API Gateway helps to manage traffic with throttling so that backend operations can withstand traffic spike and denial of service attacks
+
+Lambda versions
+
+When you create a Lambda function, there is only one version: $LATEST
+When you upload a new version of the code to Lambda, this version will become $LATEST
+You can create multiple versions of your function code and use aliases to reference the version you want to use as part of the ARN
+e.g. In a development environment you might want to maintain a few versions of the same function as you develop and test your code
+And alias is like a pointer to a specific version of the function code
+
+if your application uses an alias, remember to update the ARN that you are using if you want to use the new code
+
+Use Lambda versioning and aliases to point your applications to a specific version if you don't wnat to use $LATEST
+If your application uses an alias, instead of $LATEST remember tht it will not automatically use new code when you upload it
 
 
 
