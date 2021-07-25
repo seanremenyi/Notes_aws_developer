@@ -818,6 +818,7 @@ View your data differently: Gives you a completely different view of the data
 Speeds up queries: Speeds up queries relating to this alternative partition and sort key
 Flexible: You can create when you create your table or add it later
 ex email address (different partition key) sort key: last login
+There is an initial quota of 20 global secondary indexes per table. To request a service quota increase
 
 query:
 A query operation finds items in a table based on the primary key attribute and a distinct value to search for.
@@ -848,6 +849,171 @@ Query or Scan:
 3. Provisioned Throughput: A scan operation on a large table can use up the provisioned throughput for a large table in just a single operation
 Improving Performance. Set smaller page size (E.g. set the page size to return 40 items). Running a large number of smaller operations will allow other requests to succeed without throttling. But in general avoid scans.
 Avoid using scan operations if you can. Design tables in a way that you can use the Query, Get or BatchGetItem APIs.
+
+When using Query, or Scan, DynamoDB returns all of the item attributes by default. To get just some, rather than all of the attributes, use a Projection Expression.
+A Scan operation in Amazon DynamoDB reads every item in a table or a secondary index. By default, a Scan operation returns all of the data attributes for every item in the table or index. You can use the ProjectionExpression parameter so that Scan only returns some of the attributes, rather than all of them
+
+DynamoDB provisioned Throughput
+Measured in Capacity Units
+Specify Requirements: Whenyou create your table, you can specify your requirement in terms of read capacity units and write capacity units
+Write capacity units: 1x write capacity unit = 1 x 1KB write per second
+Read capacity units: 1 read capacity unit = 1 x strongly consistent of 4 KB per second or 2x everntually consistent reads of 4 KB per seond (default)
+If your application reads or writes larger items, it will consume more capacity units and cost you more as well
+
+On-Demand Capacity
+Charges apply ro reading, writing and storing data
+Dynamodb instantly scales up and down based on the activity of your application (don't need to specify read/write at creation time)
+Great for:
+unpredictable workloads
+New applications where you don't know the use pattern yet
+When you pay for only what you use (pay per request)
+
+When to use each pricing model?
+On-demand:
+Unknown workloads
+Unpredictabl application traffic
+Spiky, short-lived peaks,
+A pay-per-use model is desire
+It might be more difficult to predict the cost.
+Provisioned Capacity:
+Reand and write capacity requirements can be forecasted
+Predictable application traffic
+Application traffic is consistent or increases gradually
+You have more control over the cost
+
+DynamoDb Accelerator (DAX)
+it is a fully managed, custered in-memory cache for DynamoDB
+Delivers up to 10x read performance imporvement. Microsecond performance for millions of requests per second
+Ideal for read-heavy and bursty workloads like auction applications, gaming, and retail sites during black friday sales
+Dax is a write-through caching service. Data is written to the cache and the backend stoer (the Dynamodb table) at the same time
+This allows you to point your DynamoB API calls at the DAX cluster.
+If the item you are querying is in the cache (cache hit), DAX returns the result
+If the item is not available (cache miss), then DAX performs an eventually consistent GetItem operation against DynamoDB and returns the result of the API call.
+Reduces the read load on DynamoDB tables.
+May be able to reduce provisioned read capacity on your table and save money on your AWS bill
+What is it not suitable for?
+DAX Improves response times for eventual consistent reads onlny.
+Not suitable for 
+applications that require strongly consistent reads.
+applications which are mainly write-intensive
+Applications that do not perform many read operations
+Applications that do not require microsecond response times
+
+DynamoDB TTL (time to live)
+Defines an expiry time for your data
+Expired items marked for deletiong (will be deleted within 48 hours)
+Great for removing irrelevant or old data (e,g session data, event logs and temporary data
+Reduces the cost of your table by automatically removing data which is no longer relevant
+expressed in UNIx/epoch time (numerical value of s since 1970)
+When the current time is greater than the TTL, the item will be expired and marked for deletion
+You can filter out expired items from your queries
+
+DynmoDB Streams:
+Time ordered sequence of item level modifications (e.g. insert, update, delete)
+Logs encrypted at rest and stored for 24 hours
+Can use to rigger lambda function
+Dedicated endpoint
+Primary key by default is recorded
+Before and after images can also be stored
+Use Cases: Audit or archive transactions, trigger an event based on a particular transaction, or replicate data across multiple tables
+Applications can take actions based on contents of the stream
+A dynamoDB stream can be an event source for lambda
+Lambda polls the DynamoDB stream and executes based on an event
+Summary:
+1. Sequence of modifications: DynamoDB streams is a time-ordered sequence of item level modifications in your DynamoDB tables
+2. Encrypted and stored: Data is tored for 24 hours only
+3. Lambda Event Source: Can be used as an event source for Lambda, so you can create applications that take ctions based on events in your DynamoDB table
+
+Provisioned throughput and Exponential Backoff
+ProvisionedThroughputExceededException:
+Your request rate is too high for the read/write capactiy provisioned on your DynamoDB table
+Using the AWS SDK:
+The SDK will automatically retry the requests until successful
+Not using the AWS SDK:
+Reduce your request frequecy. Use exponential Backoff
+
+In addition to simple retries, all AWS SDKs use exponential Backoff
+Uses progressively longer waits between consecutive retries, for improved flow control
+ex< fail, wait 50ms, retry, if fail maybe wait 100ms, retry if fail again maybe 200ms retry.
+
+If after 1 minute this doesnt work, your request size may be exceeding the throughput for your read/write capacity
+
+## KMS
+
+AS Key management service
+Managed: A managed service that makes it easy for you to create and control the encryption keys used to encrypt your data
+Integrated: Seamlessly integrated with many AWS srvices to make encrypting data in those services as easy as checking a box
+Simple: With KMS, it is simple to encrypt your data with encryption keys that you manage
+
+
+When to use KMS?
+Whenever you are dealing with sensitive information
+Sensitive data that you want to keep secret
+Customerdat, financial data, credentials, passowrds, secrets, etc.
+What is a CMK:
+Customer Master Key
+Encrypt/decrypt data up to 4 kb
+What is is used for?
+Generate/encrypt/decrypt the Data Key.
+Data Kaey
+Used to Encrypt/decrypt your data
+This is known as envelope encryption
+
+Summarys CMK:
+Alias: Your application can refer to the alias when using the CMK
+CreationDate: The date and time when the CMK was created
+Description: You can add your own description to describe the CMK
+Key State: Enabled, Disabled, pending deletion, unavailable
+Key Material: Customer-provided or AWS-provided
+Stays inside KMS: Can never be exported
+
+Set up CMK:
+Create alias and description. Choose key material option (KMS, own, CloudHSM)
+Key Administrative Permissions: IAM users and roles that can administer (but not use) the key through the KMS API
+Key Usage Permissions: IAM users and roles that can use the key to encrypt and decrypt data
+
+AWS-Managed CMK:AWS-provided and AWS-managed CMK. Used on your behalf with the AWS services integrated with KMS
+Customer-Managed CMK: You create, own and manage yourself
+Data Key: Encryption key that you can use to encrypt data, including large amounts of data. You can use a CMK to generate, encrypt and decrypt keys
+
+Understanding KMS API calls:
+aws kms encrypt: Encrypts plaintext into ciphertext by using a customare master key
+aws kms decrypt: Decrypts ciphertext that was encrypted by an AWS KMS customer master key (CMK)
+aws key re-encrypt: Decrypts ciphertext and then re-encrypts it entirely within AWS KMs (e.g. you change the CMK or manually rotate the CMK)
+aws kms enable-key-rotation: Enables autoomatic key rotation every 365 days
+aws kms generate-data-key: Uses CMK to generate a data key to encrypt data >4kb
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
