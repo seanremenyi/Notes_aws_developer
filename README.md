@@ -606,6 +606,7 @@ An API is like a front door for applications to access data, business logic, or 
 3. Supported API types
 RESTful APIs are optimized for stateless, serverless workloads
 Websocket APIs are for real-time, two-way, stateful communication e.g., chat apps
+4. Can rollback to previous deployment by selecting a stage that has the last verion of your deployment
 
 Restful Apis
 REpresentational State Trnsfer
@@ -627,7 +628,44 @@ Serverless :So cost effective and scalable
 Cloudwatch: API Gateway logs API calls, latencies and error rates to CloudWatch
 Throttling: API Gateway helps to manage traffic with throttling so that backend operations can withstand traffic spike and denial of service attacks
 
-Lambda versions
+Importing APIs in API Gateway
+1. Importing API Definition files. You can use API Gateway Import API feature to import an API using a definition file
+2. Supported PRotocols. OpenAPI, formerly known as swagger, is supported
+3. Create New and Update Existing APIs. You can use an OpenAPI definition file to create a new API or update an existing API
+Legacy Protocol
+For example SOAP (Simple Object Access Protocol) which returns  response in XML format instead of JSON, is a legacy protocol
+You can congifure API gateway as a SOAP web service passthrough
+You can also use API Gateway transform the XML response to JSON
+
+API Gateway Cachine
+1. Caches your endpoint response. This reduces the number of calls made to your endpoint and can also improve the latency for requests to your to your API
+2. TTL. When you eneable caching, API Gateway caches responses from your endpoint for a specified time-to-live (TTL) period in seconds. The default is 300 seconds
+3. API Gateway Returns the cached response. API gateway then responds to new requests by looking up the response from the cache, instead of making a new request to your application.
+
+API Gateway can help you improve the performance of your APIs, and the latency your end users experience, by caching the output of the API call to avoid your backend application every time
+
+API Gateway Account Level Throttling.
+The purpose of API Gateway throttling is to prevent your API from being overwhelmed by too many requests.
+Default limits. By default, API Gateway limits the steady-state requests to 10,000 requests per second, per region
+Concurrent Requests. The maximm concurrent requests is 5,000 requests across all APIs, per region. You can request an increase on these limits
+429 error. If you exceed 10,000 requests per second or 5,000 concurrent requests, you will receive a 429 TooManyRequests error message
+example. 10,000 requests in the first ms
+API Gateway will serve 5,000 of those requests immediately
+It throttles the rest within the one-second period
+Amazon API Gateway throttles requests to your API using the token bucket algorithm, where a token counts for a request. You can enable usage plans to restrict client request submissions to within specified request rates and quotas. This restricts the overall request submissions so that they don't go significantly past the account-level throttling limits in a Region. Amazon API Gateway provides Per-client throttling limits that are applied to clients that use API keys associated with your usage policy as client identifier.
+
+
+
+
+
+
+
+
+
+
+
+
+## Lambda versions
 
 When you create a Lambda function, there is only one version: $LATEST
 When you upload a new version of the code to Lambda, this version will become $LATEST
@@ -640,7 +678,176 @@ if your application uses an alias, remember to update the ARN that you are using
 Use Lambda versioning and aliases to point your applications to a specific version if you don't wnat to use $LATEST
 If your application uses an alias, instead of $LATEST remember tht it will not automatically use new code when you upload it
 
+Concurrent Executions
+There is a concurrent execution limit for lambda
+Safety feature to limit th number of concurrent executions across all functions in a given region per account
+default 1000/s per region
+TooManyRequestsException
+HTTP status code: 429
+Request throughput limit exceeded
+you can request for a higher limit
+reserved concurrency guarantees a set number of concurrent executions are always available to a critical function
 
+If you have many Lambda functions running in the same region and you suddenly start seeing new invocation requests being rejected, then you many have hit you limit
+At ACG, daily usage is around 6.5m Lambda invocaion per day in us-east-1
+Request increase on this limit by submitting a request to the AWS Support Center
+Reserved concurrency guarantees that a set number of executions which will always be available for your critical function, however also acts as a limit
+
+Know tht the limit exists, 1000 concurrent executions per second
+If you are running a serverless website like ACG, it's likely you will hit the limit at some point
+If you hit the limit you will start to see invocations being rejected - 429 HTTP status code
+The remedy is to get the limit raised by AWS support
+Reserved Concurrency guarantees a set number of concurrent exectutions are always available to a critical function
+
+Lambda accessing your VPC resources
+by default your lambda will not be able to acess resources in a private VPC
+To enable this, you need to allow the function to connect to the private subnet
+Lambda needs the following VPC Configuration information so that it can connect to the VPC:
+Private subnet ID
+Security group ID (with required access)
+Lambda uses this information to set up ENIs using an availablet IP address from your private subnet
+
+You add VPC information to your lambda function config using the vpc-config parameter
+aws lambda update-function-configuration --function-name my-function --vpc-config SubnetIds=subnet-1122aabb,SecurityGroupIds=sg-51530134
+
+## Step Functions
+Provide a visual interface for serverless applications, which enables you to build, and run serverless applications as a series of steps.
+Each step in your application executes in order, as defined by your business logic
+The output of one steap can be the input of the next step
+Applications can have many Lambda functions, This helps manage the logic of your application. Including sequencing, error handling, retry logic so your application executes in order and as expected.
+Step functions also loge the state of each step so when things go wrong you can diagnose and debug the problems quickly
+State machines  (a workflow) consisting of tasks (a single step in the workflow)
+1. Visualize. Great way to visualize your serverless application
+2. Automate. Step functions automatically trigger and track each step. The output of one step is often the input to the next.
+3. Logging. Step functions log the state of each step, so if something goes wrong you can track what went wrong and where
+
+
+## X-Ray
+xray is a tool which helps developers analyze and debug distributed pplications.
+Allowing you to troubleshoot the root cause of performance issues and error.
+Provides a visualiztion of your application's underlying components
+Provides and end-to-end view or requess as they travel through your application
+captures latency, HTTP status code and errors
+Integrations
+1.AWS services. You can use xray with EC@, Elastic Container SErvice, Lambda, Elastic Beanstalk, SNS, SQS, DynamoDB, Elastic Load Balancer and API GAteway
+2. Integrate with your apps. You can use X-ray with applications written in Java, Node.js, .NET, Go, Ruby, Python
+3. API Calls. The x-ray SDK automtically captures metadata for API calls made to AWS  services using the AWS SDK.
+Architecture
+1. Install the x-ray agent. Instll the agent on your ec2
+2. Configure. Instrument your application using the X-ray SDK
+3. The X-ray SDK. Gathers information from request and response headers, the code in your application, and metadata about the AWS resources on which it runs, and sends this trace data to X-ray. e.g. incoming HTTP requests, error codes, latency data
+
+Used to help developers analyze and debus distributed applications.
+Service Map. The service map is a visual representation of your application.
+Xray Agent and SDK. Agent must be installed on your ec2 instance. Use the SDK to instrument your application to send traces to x-ray
+
+The AWS X-Ray SDK sends the data to the X-Ray daemon (noth on your system) which buffers segments in a queue and uploads them to x-ray (the aws service) in batches
+You need both x-ray SDK and the x-ray daemon on your systems
+High level requirements/config steps
+you need the xray SDK nd the xray daemon.
+You use the SDK to instrument your application to send the required data e.g. data about incoming and outgoing HTTP requests that are being made to your java application
+
+Configurations
+1. On premises and Ec2 instances. Install the X-Ray daemon on your EC2 instance or your on premises servers
+2. Elastic Beanstalk. Install the xray daemon on the ec2 instance inside your elastic beanstalk environment
+3. Elastic container service. Install the x-ray daemon in its own docker container on your ECS cluster alongside your app
+
+Annotations and Indexing
+Annotations, when instrumenting your application, you can record additional information about requests by using annotations. Can record application specific information
+These annotations are Key-value pairs that are indexed for use with filter expressions, so that you can search for traces that contain specific data and group related traces together in the console - e.g. game_name=snake, game_id=1243524542
+
+
+
+## DynamoDB
+Fast and flexible NoSQL Databse (no need to define a schema upfront)
+Consistent, single-digit millisecond latency at any scale
+Fully Managed. Supports key-value data models. Supports document formats are JSON, HTML and XML
+Use Cases: A great fit for mobile, web, gaming, ad tech, IoT and many other applications
+
+Serverless
+Integrates well with Lambda
+Dynaodb can be configured to automatically scale. A popular choice for developers and architects who are designing serverless applications.
+Perrformance : SSD storage
+Resilience: Spred across 3 geographically distinct data centers
+Consistency: Eventual consistent reads (default), strongly consisten reads
+Eventually Consistent Reads: Consisteny across all copies of data is usually reached within a second. Best for read performance.
+Strongly Consistent Reads: A strongly consistent read always reflects all successful writes. Writes are reflected across all 3 locations at once. Best for read consistency.
+ACID Transactions: DynamoDB Transactions provide the ability to perform ACID transactions (Atomic, Consistent, Isolated, Durable). Read or write multiple items across multiple tables as an all or nothing operation
+
+Primary Keys
+DynamoDB stores and retrieves data based on a primary key
+Two types: partition key, composite key (partition key + sort key)
+
+Partition key
+based on a unique attribute (like a customer id, ,product id, email address, etc.)
+value of the partition key is input to an internal hash function which determines the partition or physical location on which the data is stored.
+If you are using the partition key as your primary key, then no 2 items can have the same partition key
+Composite key
+Partition key +Sort key
+if partition key is not unique. (ex forum posts, users post multiple messages. -> Combination of User_id and sort key(timestamp))
+a unique compbination: Items in the table may have the same partition key, but they must have a different sort key.
+Storage: All items with the same partition key are stored together and then sorted according to the sort key value
+
+Access Control
+IAM: authentication and access control is managed using AWS IAM
+IAM Permissions: you can create IAM users within your AWS account with specific permissions to access and create dynamoDB tables
+IAM Roles: You can also create IAM roles, enabling temporary access to DynamoDB
+
+Restricting User Access
+You can also use a spcial IAM condition to restrict user access to only their own records
+This can be done by adding a condition to an IAM Policy to allow access only to items where the partition key value matches their User_ID
+the condition in the policy has "dynamodb:LeadingKeys" allows users to access only the items where the partition key value matches their user ID 
+fine grained access control with IAM
+
+Secondary Indexes
+Flexible querying: Query based on an attribute that is not the primary key
+Dynamodb allows you to run a query on non-primary key attributes using global secondary indexes and local secondary indexes
+A secondary index allows you to perform fast queries on specific columns in a table. You select the columns that you want included in the index and run your searches on the index, rather than on the entire dataset
+
+Local Secondary index
+Primary Key: Same partition key as your orignial table but a different sort key
+A different view: Gives you a different view of your data, organized according to an alternative sort key
+Faster queries: Any queries based on this sort key are uch faster using the index than the main table
+Add at creation time: Can only be created when you are creating your table. Tou cannot add, remove or modify it later
+ex, user_id (same partition key) sort key:country
+
+Global secondary index:
+A completely different Primary Key:
+Different partition key and sort ky
+View your data differently: Gives you a completely different view of the data
+Speeds up queries: Speeds up queries relating to this alternative partition and sort key
+Flexible: You can create when you create your table or add it later
+ex email address (different partition key) sort key: last login
+
+query:
+A query operation finds items in a table based on the primary key attribute and a distinct value to search for.
+For example, selecting an item where the user ID is equal to 212 will select all the attributes for that item (e.g., first name, surname, email address)
+Refine Queries
+Use an optional sort key name and value to refine the results.
+For example, if your sort key is a timestamp, you can refine the query to only select items with a timestamp of the last 7 days
+By default, a query returns all the ttributes for the items you select, but you can use the ProjectionExpression parameter if you want to only return the specific attributes you want (e.g. if you only want to see the email address rather than all the attributes)
+Sort Key: Results are always sorted by the sort key
+Numeric order: By defaul in ascending numeric order (1,2,3,4,5)
+ASCII: ASCII character code values
+Reverse the Order: You can reverse the order by seting the ScanIndexForward parameter to False (only works for queries despite the name)
+Eventually Consistent: By Default, queries are eventually consistent.
+Strongly Consistent: You need to explicitly set the qery to be strongly consistent
+
+scan:
+A scan operation examined every item in the table. By default, it returns all data attributes
+Use the ProjectionExpression parameter to refine the scan to only return attributes you want. (e.g., if you only want to see the email address rather than all the attributes)
+Can use filters but with a scan it still goes over the whole table, dumping the data then refines the scan based on the filter.
+Sequential by default: A scan operation processes dat sequentially, returning 1MB increments before moving on to retrieve the next 1 MB of data. Scans one partition at a time
+Parallel is possible: You can configure DynaamoDB to use parrallel scans instead by logically dividing a table or index into segments and scanning each segment in parallel.
+Beware. It is best to avoid parallel scans if your table or index is already incurring heavy read or write activity from other applications.
+Isolate scan operations to specific tables and segregate them from your mission-critical traffice. Even if that means writing data to 2 different tables
+
+Query or Scan:
+1. Query is more efficient than a scan: A scan dumps the entire table and filters out the values to provide the desired result, removing the unwanted data
+2. Extra Step: Adds an extra step of removing the data you don't want. As the table gorws, the scan operation takes longer
+3. Provisioned Throughput: A scan operation on a large table can use up the provisioned throughput for a large table in just a single operation
+Improving Performance. Set smaller page size (E.g. set the page size to return 40 items). Running a large number of smaller operations will allow other requests to succeed without throttling. But in general avoid scans.
+Avoid using scan operations if you can. Design tables in a way that you can use the Query, Get or BatchGetItem APIs.
 
 
 
