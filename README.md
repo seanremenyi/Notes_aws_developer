@@ -1087,6 +1087,248 @@ AWS MAnagement console/SQS console
 SQS API
 any other AWS SDK
 
+## SNS
+
+Simple Notification Service
+A web service that makes it easy to set up, operate and send notifications from the cloud
+
+Messages sent from an application can be immediately delivered to subscribers or other applications
+Basically a notification service
+
+Can create Push notifications to devices (e.g. apple, google, fire os, windows, android)
+SMS and Email: SMS test messages or email to Amazon simple queue service(SQS) queues or any HTTP endpoint
+Lambda: Trigger Lambda functions to process the information in the message, publish to another SNS topic or send the messages to another AWS service
+Uses a pub-sub model:
+Publish and subscribe model: Applications publish or push messages to a topic
+Subscribers receive messages from a topic
+
+Notifications are delivered using a push mechanism that eliminates the need to periodically check or poll for new information and updates
+Its an access point, allowing recipients to subscribe to, and receive identical copies of the same notification
+SNS delivers appropriately-formatted copies of the message to each subscriber (whether it's iOS, Android, SMS, etc.)
+Durable Storage
+Prevents messagese from being lost
+All messages to SNS are stored redundantly across multiple AZs
+Instantaneous: Instantaneous, push-based delivery (no polling)
+Simple: Simple APIs and easy integration with applications
+Flexible: Flexible message delivery over multiple transport protocols
+Inexpensive: Inexpensive, pay-as-you-go model, no upfront cotsts
+Easy to configure: Web Based AWS Management Console offers the simplicity of a point and click interface
+Managed Service: With all the high availability and durability features for a production environemt
+highly available notification service that allows us to send push notifications from the cloud
+supports text messages, email, SQS queues or any HTTP endpoint
+Pub-sub model whereby users subscribe to topics. Push mechanism rather than a pull (or poll mechanism)
+
+SNS:
+messaged service
+SNS push based
+think push notifications
+
+SQS
+Also messaging service, held in a queue instead of delivevring
+SQS pull-based (polling)
+Think polling the queue for messages
+
+## SES
+Simple email service
+1. Scalable and highly availble email: Designed to help maarketing teams and application developers send marketing, notification, and transactional emails to their customer using pay as you go model
+2. Send and REceive emails: Can also be used to receive emails with incoming mails delivered to an s3 bucket
+3. Trigger lambda and SNS: Incoming emails can be used to trigger Lambda functions and SNS notifications
+
+Automated Emails for ex:
+Notification that there is a new post in a discussion you moderate for ex
+Online purchases: purchase confirmations, shipping notifications and order status updates
+Marketing Emails: Marketing communications, advertisements, newsletters, special offers, new products and Black Friday specials
+
+SES:
+Email messaging service
+Can trigger a lambda function or SNS notification
+Can be used for both incoming and outgoing email
+An email address is all tht is required to start sending messages
+for email only
+
+
+SNS:
+Pub/Sub messaging service; formats include SMS, HTTP, SQS, email
+can trigger a Lambda function
+Can fanout messages to a large number of recipients (replicate and push messages to multiple endpoints and formats)
+Consumers must subsrcribe to a topic to receive the notifications
+no used for receiving notifications
+
+## Kinesis
+a family of services which enables you to collect, process and analyze streaming data, in real-time
+Allows you to build custom applications for your own business needs
+Kinesis is a greek word meaning motion or movements
+AMazon Kinesis deals with data that is in motion, or streaming data
+
+Streaming Data?
+Data generated continuously by thousands of data sources, which typically send in the data records simultaneously and in small sizes (KB)
+- Financial transactions
+- stock prices
+- game data (as the gamer plays)
+- social media feeds
+- Location tracking data (Uber)
+- IoT sensors
+- Clickstream data
+- Log files
+
+Kinesis Streams:
+Stream data and video to allow you to build custom applications that process data in real time
+Data stream and video streams
+Shards: only in kinesis streams
+Kinesis streams are made up of shards
+Each shard is a sequence of one or more data records ands provides a fixed unit of capacity.
+5 reads per second. The max total read rate is 2MB per second
+1000 writes per second. The max total write rate is 1MB per second
+The data capacity of the stream is the sum total capacity of its shards
+If the data rate increases, you can increase capacity on your stream by increasing the number of shards
+retains data up from 24hours to a week
+shards continue to consumers to process
+A shard is a sequence of data records, each with their own unique sequence number
+As your data rate increases, you increase the number of shards (resharding)
+What abou consumers?
+- Kinesis client library runs on the consumer instances.
+- Tracks the number of shards in your stream
+- Discovers new shards when you reshard
+Kinesis Client library:
+- The KCL ensures that for every shard there is a record processor
+- Manages the number of record processos relative to the number of shards and consumers
+- If you have only one consumer, the kcl will create all the record processors on a single consumer
+- If you have 2 consumers it will load balance and create half the processors on one instance and half on another
+if 4 shards to one consumer than 1 consumer/4 record processors, if 2 consumers than 2 record processors
+What about scaling out the consumers?
+- With KCL, generally you should ensure that the number of instances does not exceed the number of shards (except for failure or standby purposes
+- You never need multiple instances to handle the processing load of one shard
+- However, one worker can process multiple shard
+- it's fine if the number of shards exceeds the number of instances
+- Don't think that just because you reshard, that you need to add more instance
+- Instead CPU utilisation is what should drive the quantity of consumer instances you have, NOT the number of shards in your kinesis stream
+- Use an auto scaling group, and base scaling decision on CPU load on your consumer
+Kinesis Shards:
+- The Kinesis Client Library running on your consumers creates a record proccessor for each shard that is being consumer by your instance
+- If you increase the number of shards, the KCL will add more record processors on your consumers
+- CPU utilisation is what should drive the quantity of consumer instances you have, NOT the number of shards in your kinesis stream
+- Use an auto scaling group and base scaling decisions on CPU load on your consumers
+
+Kinesis Video streams: Securely stream video from connected devices to AWS.
+Videos can be used for analytics and machine learning
+
+Kinesis data firehose:
+Capture, transform, load data streams into AWS data stores ( or other service providers like Splunk or datadog) to enable near real-time analytics with BI tools
+no data retention
+optional lamda can process while it comes in
+then save to storage
+no shards and no consumers
+
+Kinesis Data Analytics:
+Analyze, query and transform streamed data in real time using standard SQL. tore the results in an AWS data store (like S3, redshif)
+sits after kinesis streams or data firehose
+
+## Elastic Beanstalk
+Deploy and scale web applications including the web application server pplatform
+Widely used application server platforms
+Supported languages: Java, .NET, PHP, Node.js, Python, Ruby, Go and Docker
+Supported platforms: Apache http server, Tomcat, Nginx, Passenger, IIS, puma
+Developers: Focus on writing code and don't worry about any of the underlying infrastructure needed to run your application
+
+1. Infrastructure: Provisioning infrastructure, load balancing, autoscaling and application health  monitoring
+2. Application Platform: Installation and management of the application stack including patching and updates to your OS and application platform
+3. You are in control: You have complete administrative control of the AWS resources. No additional charges for using Elastic Beanstalk. You are only charged for the resources deployed
+4. or it can take care of system admin: OS and appliaction server updates. Monitoring, etrics and health checks are all included.
+
+Great for developers
+Focus on writing code
+You don't need to worry about any of the underlying infrastructure needed to run the application
+Get your application to market faster
+Fastest and Simplest way to deploy your application in AWS
+
+Updating options for deployment updates
+1. All at once: deploys to all hosts concurrently
+deploys to all instance simultaneousle
+you will experience a total outage
+Not ideal for mission-critical production systems
+If the update fails, you need to roll back to the changes by re-deploying the original version to all your insance, resulting in another outage to get back to the previous version.
+Not good for production
+involves a service interruption (and a second if rollback is required)
+
+2. Rolling: Deploys the new version in batches
+Deploys the new version in batches. Each batch is taken out of service while the deployment takes place
+Your environment capacity will be reduced by the number of instances in a batch while the deployment takes place
+Not ideal for performance sensitive systems
+rollback will again slow down performance
+reduced capacity during deployment
+
+3. Rolling with additional Batches: Launches an additional batch of instances. Then deploys the new version in batches
+Launches an additional batch of instances. 
+Deploys the new version in batches
+Maintains full capacity throughout the deployment
+If the update fails, you need to perform an additional rolling update to roll back the changes
+takes a while to rollback changes
+Maintains full capacity, rolling back takes time as requires a further rolling update
+
+4. Immutable: Deploys the new version to a fresh group of instances before deleting the old instances
+Deploys the new version to a fresh group of instances
+Only when the new instances pass their health checks, should the old instances be terminated
+If a deployment fails, just delete the new instances
+little disruption to production
+This is the preferred approach for mission critical systems
+maintains full capacity
+
+
+5. Traffic Splitting: Installs he new version on a new set of sintance like an immutable deployment but forwards a percentage of incoming client traffic to the new application version for evaluation.
+Enables Canary testing
+Installs the new version on a new set of instances julst like and immutable deployment
+Forwards a percentage of incoming client traffice to the new application vesion for a specified evaluation period
+If the new instances stays heathly. Elastic beanstalk will forwards 100% of the traffic to them and terminated the old one
+Like the canary in the coal mine, this provides an early indication that something is wrong
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
