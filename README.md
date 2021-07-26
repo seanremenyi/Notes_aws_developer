@@ -1043,6 +1043,7 @@ Ideally, the job will be processed within that time, the message will become vis
 Deffault: 30 seconds
 Increase if necesary: Increase if the task takes more than 30 seconds
 Maximum: The maxiumum is 12 hours
+to change use the ChangeMessageVisibility API call
 
 Short polling vs Long polling:
 Short Polling:
@@ -1050,6 +1051,7 @@ Returns a response immediately even if the message queue being polled is empty
 This can result in a lot of empty responses if nothing is in the queue
 You will still pay for the responses
 Long Polling:
+long polling max is 20s
 Periodically polls the queue
 Doesn't return a response until a message arrvies in the message queue or the long poll times out
 Can save money!
