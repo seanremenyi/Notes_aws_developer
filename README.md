@@ -1282,8 +1282,33 @@ If the new instances stays heathly. Elastic beanstalk will forwards 100% of the 
 Like the canary in the coal mine, this provides an early indication that something is wrong
 
 
+You can customize your elastic beanstalk environment using Elastic Beanstalk configuration files
+Configuration Define packages to install, create linkux users and groups, run shellcommands, enable services, load balancer configurations.
+YAML or JSON: These are files written in yaml or json format
+Constraints: the file must have a .config extension and be inside a folder called .ebextensions
+.ebextensions folder:
+1. Location: Must be included in the top-level directory of your application source code bundle.
+2. Source Control: The configuration files can be placed under source control along with the rest of your application code
+myhealthcheckurl.config: ex
+Configures an application health check url which will be used by an Elastic load balancer. The load balancer will make an HTTP request to the specified path to check if the instances are healthy
+
+Elastic beanstalk supports 2 ways of of integrating an RDS database with your Beanstalk environment. Deploing RDS inside your Elastic Beanstalk environment or outside of it
+Launch within the enviironment:
+- Launch the RDS instance from within the ELastic Beanstalk console
+- It is created within your elastic beanstalk environemtn
+- If you terminate the environment, the database will also be terminated
+- It is a good option for Dev and Test deployments, not so good for prod
+- quick and easy
 
 
+Outside:
+Don't use elastic beanstalk to create your RDS database
+Instead, use the RDS console or AWS cli
+It allows you to tear down your application environment without affecting your database
+Preffered way for production
+1. And additional security group must be added to your env Auto Scaling group
+2. youll need to provide connection string information to your application servers using elastic beanstalk environment properties
+3. 
 
 
 
