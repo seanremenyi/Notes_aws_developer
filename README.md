@@ -1310,27 +1310,131 @@ It allows you to tear down your application environment without affecting your d
 Preffered way for production
 1. And additional security group must be added to your env Auto Scaling group
 2. youll need to provide connection string information to your application servers using elastic beanstalk environment properties
-3. 
 
+# CI/CD
+1. Software development best practice: Continuoous integrations, continuous delivery/deployment
+2. Make small changes and Automate everything: Small, incremental code changes. Automate as much as possible e.g. code integration, build, test and deployment
+3. Why? Modern companies like AWS, Netflix, Google and Facebook have pioneered this approach to releasing code, successfully applying thousands of changes per day
 
+Automations is good:
+fast, repeatable, scalable and enables rapid deployment
+Manual is bad:
+slow, error prone, inconsisten, unscalable, complex
+Small changes:
+Test each code change and cach bugs while they are small and simple to fix
 
+Workflow:
+Shared code repository: Multiple developers contributing to a shared code respooistory like Git. Frequently merging or integrating code updates.
+Automated build: When canges appear in the code repository this triggers an tuomated build of the new code
+Automated tests: Run automated tests to check the code locally before it is commited into the master code repository
+Code is merged: After successful tests, the code gets merged to the master repository
+Prepared for deployment: Code is built, tested and packaged for delivery
+Manual Desciesion: Humans may be involved in the decision to deploy the code. This is known as continuous Delivery
+Or Fully Automated. The system automatically deploys the new code as soon as it has been prepared for deployment. This is known as Continuous Deployment
 
+Tools:
+Codecommit: Source and version control
+Source control service enabling teams to collaborate on code, html pages, scripts, images and binaries
+Codebuild: Automated build
+Compiles source code, runs test and produces packages that areread to deploy.
+Codedeploy: Automated deployment
+Automates code deployments to any instance, including ec2, Lambda and on-premises
+CodePipeline: Manages the workflow
+End-to-end solution, build, test and deploy your application every timme there is a code change
 
+## Codecommit
 
+Manaages updated from multiple sources
+Enables collaborations
+Tracks and manages code changes
+Mantains version history
 
+## Codeploy
+Automated deployment service
+works with ec2, onpremisses and lambda
+Quickly release new features
+Avoid downtime during deployments
+Avoid the risks associated with manual processes
 
+Code deploy deployment approaches
+1. In place: The application is stopped on each instance and the new release is installled. Aslo known as a rolling update
+The application is stopped on the first instance (1 at a time for your instances)
+Theinstance will be out of service during the deployment so capacity is reduced
+You should configure your Elastic Load Balancer to stop sending the requests to the instance
+Code deploy installs the new version known as a revision
+the instance comes back into service
+Codedeploy continues to deploy to the next instance
+lambda is not supported
+great when deploying the first time
+Rollback:
+theres no quick fix
+with an inplace deployment, you will need to redeploy the previous version, through the same process
+time consuming
+2. Blue/Green: New instances are provisioned and the new release is installed on the new instance. Blue represents the active deployment, green is the new release
+Blue represenest the current version of our application
+Codedeploy provisions new instances (green)
+The new revision is deployed on the green instances
+The green instances are registered with the elastic load balancer
+Traffice is routed away from the old environment
+The blue environment is eventually terminated once everything looks good
+no capactiy reduction
+you pay for 2 environments until you terminate the old servers
+Rollback:
+easy
+Set the load balancer back to the original environment
+easy to switch between the old and new releases
+only works if you didn't already terminate your old environment
 
+Codedeploy AppSpec file:
+Configuration fule: Defines the parametes that are going to be used during a codedeploy deployment
+Ec2 and on premises systems, yaml only
+Lambda, Yaml and json supported. File structure depends on whether you are deploying to lambda or ec2
 
+version: Reservved for future use
+Currently the allowed value is 0.0
+OR: Operating system version
+The operating system version you are using e.g. linux, windows
+files: Configurations file, packages
+The location of any application files that need to be copied and where they should be copied to
+Hooks: Lifecycle event hooks
+Scripts which need to run at set points in the deployment lifecycle. Hooks have a very specific run order
 
+Scripts that you might run during a deployment:
+1. Unzip files: unzip application files prior to deploment
+2. Run tests: Run functional tests on a newly deployed application
+3. Deal with Load Balancing: De-register and re-register instances with a load balancer
 
+Typical folder setup:
+in root folder appsec.yml
+/Scripst
+/Config
+/Source
+the appse.yml must be places in the root folder of your deployment
 
+Codedeploy Lifecycle event hooks:
+lifecycle event hooks are run in a specific order known as the Run Order
+3 phases for in-place deployment
+Phase1: Deregister instances from a load balancer
+life hooks: 
+BeforeBlockTraffic: Before, tasks you want to run on instances before they are deregistered from a load balancer
+BlockTraffic: de-register instances from a load balancer
+AfterBlockTraffic: Tasks you want to run on instances after they are deregistered from a load balancer
 
+Phase2: The real nuts and bolts of the application deployment
+lifecycle event hooks:
+ApplicationStop: commands to gracefullt stop the application
+DownloadBundle: Codedeploy agent copies the application revision files to a temporary location
+BeforeInstall: Preinstallation scripts e.g. backing up the current version, decrypting files
+Install: Copy aplication files to final locations
+AfterInstall: Post-install scripts e.g. configuration, file permissions
+ApplicationStart: Start any services that were topped during ApplicationStop
+ValidateService: Run tests to validate the service
 
-
-
-
-
-
+Phase3 : Re-register the instances with the load balancer
+Lifecycle event hooks:
+BeforeAllowTraffic: tasks you want to run on instances before they are registered with the load balancer
+AllowTraffice: Register instances with a load balancer
+After: Tasks you want to run on instances after they are registered with a load balancer
 
 
 
