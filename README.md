@@ -944,7 +944,7 @@ AS Key management service
 Managed: A managed service that makes it easy for you to create and control the encryption keys used to encrypt your data
 Integrated: Seamlessly integrated with many AWS srvices to make encrypting data in those services as easy as checking a box
 Simple: With KMS, it is simple to encrypt your data with encryption keys that you manage
-
+KMS is multi-tenant whereas CloudHSM is dedicated hardware. S3 Encryption and Client-Side encryption are not Key Management Solutions
 
 When to use KMS?
 Whenever you are dealing with sensitive information
@@ -983,8 +983,109 @@ aws key re-encrypt: Decrypts ciphertext and then re-encrypts it entirely within 
 aws kms enable-key-rotation: Enables autoomatic key rotation every 365 days
 aws kms generate-data-key: Uses CMK to generate a data key to encrypt data >4kb
 
+Envelope Encryption
+A process for encrypting your data. it applies to file > 4kb in size
+why use it?
+network performance. Whe you encrypt data directly with KMS it must be transeferred over the network
+Performance. With envelope encryption, only the data key goes over the network, not your data
+Benefits. The data key is used locally in your application or AWS service, avoiding the need to transfer large amounts of data to KMS
+Encrypting the key that encrypts our data.
+The CMK is used to encrypt the data key (or envelope key)
+The data key encrypts our data
+Used for encrypting anything over 4 KB
+Using envelope encryption avoids sending all your data into KMS over the network
+Remember the GenerateDataKey API call
+
+## SQS
+simple queue service (first ever services AWS had)
+a message queue service
+Enables web applications to quickly and reliably queue messages that one component in the application generates for another component to consume
+A queue is a temporary repository for messages awaiting processing
+Features:
+1. Decouple Application Componenet: Decouple the componenet of an application so they run independently, easing message management between components
+2. Store messages: Any component of a distributed application can store messages in the queue. Messages can contain up to 256 KB of text in any format.
+3. Retrieve Messages. Any component can later retrieve the messages programmatically using the Amazon SQS API
+It acts as a buffer between the component receiving the data for processing and the component producing and saving the data
+The queue resolves issues that arise if the producer is producing work faster than the consumer can process it, or if the producer or consumer are only intermittently connected to the network
+Key-Facts:
+Pull based: SQS is pull-based, not pushed based
+256 KB: Messages are 256 KB in size
+Text Data: Including XML, JSON and unformatted text
+Guarantee: Messages will be processed at least once
+Up to 14 days: Messages can be kept in the queue from one minute to 14 days
+Default Retention: The default retention period is 4 days
+It is a distributed message queueing system, Allows us to decouple the componenets of an application so that they are independent
+It is pull based
+
+Types of queues:
+Standard queues:
+Dafault, provides best effort ordering
+Unlimited transactions: Nearly-unlimited number of transactions per second
+Guarantee: Guaranteed that a message is deliveredat least once
+Best-Effort Ordering: Standard queues provide best-effort ordering which ensures that messages are generally delivered in the same order as they are sent.
+Occasionally (because of the highly-distributed architecture that allows hight throughput),
+more than one copy of a message might be delivered out of order
+occasional duplicated
 
 
+FIFO (first in first out):
+also available
+First in first out delivery: The order in which messages are sent and received is strictly perserved
+Exactly -Once Processing:
+A message is delivered once and remains available until a consumer processes and deletes it. Duplicates are not introduced
+300 TPS Limit: FIFO queues are limited to 300 transactions per sescond (TPS) but have all the capabilities of standard queues
+good for banking transactions which need to happen in a strict order and no duplicates
+
+Settings:
+Visibility Timeout:
+Visibility timeout is the amount of time that the messagge is invisible in the SQS queue after a reader picks up that message
+Ideally, the job will be processed within that time, the message will become visible again and another reader will process it
+Deffault: 30 seconds
+Increase if necesary: Increase if the task takes more than 30 seconds
+Maximum: The maxiumum is 12 hours
+
+Short polling vs Long polling:
+Short Polling:
+Returns a response immediately even if the message queue being polled is empty
+This can result in a lot of empty responses if nothing is in the queue
+You will still pay for the responses
+Long Polling:
+Periodically polls the queue
+Doesn't return a response until a message arrvies in the message queue or the long poll times out
+Can save money!
+Long polling is generally preferable to short polling
+
+Delay queues
+SQS Delay Queues - postpone delivery of new messages
+- Postpone delivery of new messages to a queue for a number of seconds
+- Messages sent to the Delay queue remain invisible to consumers for the duration of the delay period
+- Default is 0 seconds, maximum is 900
+- For standard queues, changing the setting doesn't affect the delay of messages already in the queue, only new messages.
+- For FIFO queue, this affects the delay of messages already in the queue
+When should you use a Delay queue
+- Large distributed applications which may need to introduce a delay in processing
+- You need to apply a delay to an entire queue of messages
+- e.g. adding a delay of a few second, to allow for updates to your sales and stock control databases before sending a notification to a customer confirming an online transaction
+
+Best practice for Managing Large SQS Messages Using s3
+-For large SQS messages -256KB up to 2GB in size
+- Use s3 to store the messages
+- Use Amazon SQS Extended client Library for java to manage them
+- (you'll also need the AWS SDK for Jave) - provides an API for S3 bucket and object operations
+SQS Extended Client Library for Java allows you to:
+- Specify that messages are always stored in Amazon s# or only messages > 256 KB
+- Send a message which reference a message object stored in S3
+- Get a message object from s3
+- Delete a message from S3 
+You need:
+AWS SDK for Java
+SQS Extended Client Library for Java
+An S3 bucket
+Can't use:
+AWS CLI
+AWS MAnagement console/SQS console
+SQS API
+any other AWS SDK
 
 
 
