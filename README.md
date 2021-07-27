@@ -1436,6 +1436,125 @@ BeforeAllowTraffic: tasks you want to run on instances before they are registere
 AllowTraffice: Register instances with a load balancer
 After: Tasks you want to run on instances after they are registered with a load balancer
 
+## CodePipeline
+Fully managed Ci/CD service
+1. Orchestrates Build, Test and Deployment: The pipeline is triggered every time there is a change to your code. Like a condtuctor to an orchestra
+2. Automated Release Process: Fast, consistent, fewer mistakes. Enables quick release of new features and bug fixe.
+3. Codepipeline integrates with: Codecommit, Codebuild, codedeploy, github, jenkins, elastic beanstalk, cloudformation, lambda ECS
+
+Codepipeline: Workflow is defined"The workflow beings when there is a change detected in your source code
+CodeCommit: New code appears: New source code appears in the codecommit repository
+Code is built and teted: Codebuild immedieately compiles source code, runs test and produces packages
+CodeDeploy: Application Deployed: The newly built application is deployed into a staging or production environment
+
+Orchestrates your ened to end software reease process based on a workflow you define
+utomated: automatically triggers your pipeline as soon as a change is detected in your sourcee code
+
+## ECS
+What are they: imilar to a virtual machine, more like a virtual operating environment
+Standardized: A standarized unit with unit with everything the software needs to run e.g. libraries, system tools, code and runtime
+Microservices: Applications are created using independent stateless components or microservices running in containers
+Docker or Windows Containers: Use docker to create linux containers and windows containers for windows workloads
+
+Architecutre of a conainer: code, liraries, virtual kernel (all three in a container) that then run on docker
+advantages:
+Highly scalable: If the pplication becomes over loaded, scale on the services you need to
+Fault tolerant: a single error in one of your own containers shouldn't bring down your entire app
+Easy to maintain: Easier to maintain, update than large monolithic applications
+
+Wehere does ecs fit?
+A container orchestration service which suppports docker and windows containers
+Quickly deploy and scale containerized workloads without having to install, configure, manage and scale your own orchestration platform
+Similar to kubernetes, but with deep integration with AWS services e.g. IAM, VPC, Route53
+
+fargate or ec2?
+ECS: Clusters of virtual machines: ECS will run your containers on clusters of virtual machines
+Fargate for serverless: Use fargate for serverless containers and you don't need to worry about the underlying EC2 instances.
+EC2 for more control: If you want to control the installation, configuration and management of your compute environment.
+
+ECR: elastic container registry
+This is where you can store your container images. Docker or windows container
+AWS services that use ECS
+sagemaker, amazon lex, amazon.com
+
+containers:
+virtual operating environment with everything the software needs to run
+includes libraries, system tools, code and runtime
+Allows applications to be built using independent stateless components or microservices running in multipple containers
+
+Docker commands to build, tag (apply an alias and push your docker image to the ecr repository
+Build: docker build -t myimagerepo
+Tag (apply alias): docker tag myimagerepo:latest 72530006743.dkr.ecr.eu-central-a.amazonaws.com/myimagerepo:latest
+push image to registry: docker push 72530006743.dkr.ecr.eu-centra-1.amazonaws.com/myimagerepo:latest
+
+buildspec.yml File:; Use buildspec.yml to define the build commands and settings used by codebuild to run your build
+Override buildspec.yml Settings: You can override the settings in buildspec.yml by adding your own commands in the console when you launch the build
+Trouble shooting Failures: If your build fails, check the build logs in the CodeBuild concole, and you can also view the full Codebuild log in Cloudwatch
+
+Deploying docker with elastic beanstalk:
+1. Elastic beanstalk supports the deployment of docker containers
+2.  Docker containers are self-contained and include all the conifguration information and software your web application requires to run - think libraries, system tools, code and runtime
+3.  Elastic Beanstalk handles the capacity provisioning, load balancing scaling, and application health monitoring
+
+Deploy:
+- Single docker container: You can either run a single docker container on an ec2 instance provisioned by elastic beanstalk
+- Deploy your code: Upload a zip file containing your code bundle and elastic beanstalk will do the rest
+- Multiple Docker containers: Use elastic beanstalk to build ecs cluster and deploy multiple docker containers on each instance
+- Upgrade your code: If you want to upgrade your application to a new version, it's one easy step in the console to upload and deploy
+- Code can be uploaded directly from your local machine or  public s3 bucket
+- You can also store your code in codeCommit - but must use the elastic beanstalk cli
+
+## Cloudformation
+Manage, configure and provision your AWS infrastructure code
+
+resources are defined using a cloudformation template
+Cloudformation interprets the template and makes appropriate API calls to create the resources you have defined
+Supports YAML or JSON
+
+Benefits:
+Consistent: Infrastructure is provisioned consistently with fewer mistakes
+Quick and effictient: Less time and effort than configuring things manually
+Version Control: You can version control and peer review your templates
+Free to use: Free to use but you are charged for the aws resources you create using CloudFormation
+Manage updates: Can be used to manage updates and dependencies
+Rolling back: You can roll back to a previous state and delet the entire stack as well
+
+YAML or JSON template: YAML or JSON template used to describe the end state of the infrastructure you are either provisioning or changing
+S3: After creating the template, you up load it to CloudFormation using s3
+API calls: CloudFormation reads the template and makes the API calls on your behalf
+CloudFormation Stack: The resulting set of resources that CloudFormation builds from your template is called a "stack"
+
+Template:
+- Resources section is Mandatory: Resources is the only mandatory section of the cloudformation template
+- The transform section is for referencing additional code: The transform section is used to refernce additional code stored in S3, allowing for code re-use. E.g. Lambda code or template snippets/reusable prices of CloudFormation code
+
+Infrastructure as code: Cloudformation allows you to maage, configure and privision aws infrastructure as YAML or JSON code
+Parameters: Input custom values
+Conditions: e.g. provision resources based on environment
+Resources: This section is mandatory and describes the AWS resources that CloudFormation ill create
+Mappings: Allows you to create custtom mapping like region:AMI
+Transform: Allows you to reference code located in S3 e.g. lambda code or reusable snippets of CloudFormation code
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
