@@ -1574,11 +1574,44 @@ Transforms is used to reference code located in S3 and also for specifying the u
 
 AppSpec files on an EC2/on-premises compute platform must be a YAML-formatted file named appspec.yml and it must be placed in the root of the directory structure of an application's source code. Otherwise, deployments fail. Reference: CodeDeploy AppSpec File reference.
 
+## Web identity Ferderation
+Simplifies authentication and authorization for web application
+
+- User accecss to AWS resources: Users access AWS resources after successfully authenticating with a web-based identity provider like Facebook, Amazon, or Google
+- Authentication: Following successful authentication, users receive an authentication code from the web ID provider
+- Authorization: Users can trade this authentication code for temporary AWS security credentials. authorizing access to AWS resources
+
+Amazon Cognito: Provides web ideneity federation including signup and signin funtiontiliy for your applications and access for guest users
+Identity broker: Manages autentication between you application and web id providers, so you don't need to write any additional code
+Multiple Devices: Synchronizes user data to multiple devices
+Recommended for mobile: Recommended for all mobile applications that cal AWS services
+AWS recommended best practice for web id federation for mobile applications 
+
+The temporary credentials map to an iam role, allowing access to the required resource
+No need for the application to embed or store AWS credentials locally on the device
+
+User Pools: User directories to manage the signup and sign in for mobile and web applications
+Signin: Users can sign in directly to the user poo or using Facebook, google or amazone
+Idenetiy Pools: Identiy pools enable you to provide temporary AWS credentials. Enabling access to AWS services like s3 or Dynamodb
+
+sign in user pool brokers with facebook then returns a JWT whhich is used for the identity pool wihich gives an IAM role
+
+Cognito push synchronization:
+synchronization across all devices
+Devices: Cognito tracks the assocation between user identity and the various different devices they sign-in from
+Seamless. Cognito uses push Synchronization to push updates and synchronize user data across multiple devices
+SNS silent notifications: SNS notification to all the devices associated with a given user identity whenever data stored in the cloud changes
+(for example updating his address on one device get synchronized across all device associated with account)
+
+An authentication token (JWT token) is exchanged for temporary AWS credentials, allowing users to assume an IAM role, with permission to access AWS resources
 
 
-
-
-
+User pool v idenety pools
+U.P:
+Userdirectory used to manage sign up and sign in functionality for mobie and web applications.
+I.P:
+identiy pools enable you to provide temporary AWS credentials.
+enabling accesss to AWS services like S3 or Dynamodb
 
 
 
