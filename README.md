@@ -1551,13 +1551,28 @@ Nested stacks: Enables re-use of Cloudformation code for common cases
 E.g. standard configureatin for a load balancer, web server or application server
 Instead of copying out the code each, time, create a standard template for each common use case and reference from within your CloudFormation template
 
+Correct. By default, the “automatic rollback on error” feature is enabled. This will direct CloudFormation to only create or update all resources in your stack if all individual operations succeed. If they do not, CloudFormation reverts the stack to the last known stable configuration.
+The Transform section specifies one or more macros that AWS CloudFormation uses to process your template. The Transform section builds on the simple, declarative language of AWS CloudFormation with a powerful macro system. The declaration Transform: AWS::Serverless-2016-10-31 is required for AWS SAM template files.
+
+How can you prevent CloudFormation from deleting your entire stack on failure?
+
+
+Use the --disable-rollback flag with the AWS CLI
+
+Set the 'Rollback on failure' radio button to No in the CloudFormation console
+
+Correct. This AWS CLI option disables the rollback of the stack if stack creation fails.
+
+Correct. This AWS CloudFormation console option disables the rollback of the stack if stack creation fails.
 
 
 
 
+Transforms is used to reference code located in S3 and also for specifying the use of the Serverless Application Model (SAM) for Lambda deployments.
 
 
 
+AppSpec files on an EC2/on-premises compute platform must be a YAML-formatted file named appspec.yml and it must be placed in the root of the directory structure of an application's source code. Otherwise, deployments fail. Reference: CodeDeploy AppSpec File reference.
 
 
 
