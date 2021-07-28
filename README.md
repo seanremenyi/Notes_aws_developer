@@ -1535,9 +1535,21 @@ Resources: This section is mandatory and describes the AWS resources that CloudF
 Mappings: Allows you to create custtom mapping like region:AMI
 Transform: Allows you to reference code located in S3 e.g. lambda code or reusable snippets of CloudFormation code
 
+Cloudformation and SAM (Serverless Application Model)
+1. CloudFormation for serverless: The Serverless Application Model is an extension to CloudFormation to define serverless applications
+2. Simplified Syntax: SAM uses a simplified syntax for defining serverless resources, APIs, Lambda functions, DynamoDB tables,etc.
+3. SAM CLI: Use the SAM CLI to package your deployment code, upload it to S3 and deploy your serverless application
+defines and provision serverless applications using CloudFormation, has its own cli and own commands
 
+sam package
+pacages your application and uploads to s3
+sam deploy
+deploys your serverless app using Cloudformation
 
-
+Cloud formation Nested Stacks:
+Nested stacks: Enables re-use of Cloudformation code for common cases
+E.g. standard configureatin for a load balancer, web server or application server
+Instead of copying out the code each, time, create a standard template for each common use case and reference from within your CloudFormation template
 
 
 
