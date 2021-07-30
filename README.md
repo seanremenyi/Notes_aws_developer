@@ -1586,6 +1586,7 @@ Identity broker: Manages autentication between you application and web id provid
 Multiple Devices: Synchronizes user data to multiple devices
 Recommended for mobile: Recommended for all mobile applications that cal AWS services
 AWS recommended best practice for web id federation for mobile applications 
+With Amazon Cognito, you can add Multi-Factor Authentication (MFA) to a User Pool
 
 The temporary credentials map to an iam role, allowing access to the required resource
 No need for the application to embed or store AWS credentials locally on the device
@@ -1613,16 +1614,93 @@ I.P:
 identiy pools enable you to provide temporary AWS credentials.
 enabling accesss to AWS services like S3 or Dynamodb
 
+IAM is used to define user access permissions within AWS:
+3 types:
+- AWS Managed policies
+IAM policy created and adminitered by AWS
+Allows you to assign appropriate permissions to your users without having to write the policy yourself
+Attach to multiple users, groups or roles in the same AWS account or across different accounts
+You cannot change the permissions defined in an AWS managed Policy
+
+- Customer Managed policies
+1. Created by you: A standalone policy that you create and administer inside your own AWS account. You can attach this policy to multiple users, groups and roles within your own account.
+2. Copy an existing policy: In order to create a customer managed policy, you can copy an existing AWS managed policy and customized it to fit the requirements of your organization.
+3. Your needs: Recommended for use cases where the existing AWS managed policies don't meet the needs of your environment
+
+
+- Inline Policies
+1. 1:1 relationship. There is a strict 1:1 relationship between the entity and the policy
+2. Embedded: When you delete the user group, or role in which the inline policy is embedded, the policy will also be deleted
+3. Single User, Group or role: The policy must not be inadvertently assigned to any other group, user or role than the one for which it is intended. The policy must only ever be attached to a single user, group or role
+4. In most cases, AWS recommends using managed policied over inline policies
 
 
 
+sts AssumeRoleWithWebIdentity:
+- sts API: assume-role-with-web-identity is an API provided by STS (Security token service)
+- Temporary Credentials: Returns temporary security credentials for users authenticated by a mobile or web application or using a web ID provider like Amazon, Facebook, Google, etc.
+- Web Applications: Regular web application can use the assume-role-with-web-identity API. For mobile applications, Cognito is recommended
+- AssumerRoleUser: Within AssumedRoleUser, the ARN and AssumeRoleID are used to programmatically reference to temporary crdentials, not an IAM role or user
 
 
+Cross account access:
+Delegate access to resources in different AWS accounts that you own. 
+Manage resources in other accounts: Share resources in one account with users in a different account
+IAM role: Create a role in one account to allow access and grant permissions to users in a different account
+Switch roles within the AWS management console. No password required
 
 
+## CloudWatch
+Amazon cloudwatch is a monitoring service to monitor the health and performance of your AWS resources, as well as the applications that you run on AWS and in your own datacenter
+What can it monitor:
+Compute:
+- Ec2 instances
+- Auto scaling grous
+- Elastic Load balancers
+- Route53 health checks
+- Lambda
+Storage and content delivery:
+- EBS volumes
+- Storage Gateway
+- Cloudfront
+Databases and analytics:
+- Dynamodb tables
+- Elasticache nodes
+- RDS instances
+- Redshift
+- Elastic Map Reduce
+Other:
+- SNS topics
+- SQS queues
+- API GAteway
+- Estimated AWS charges
 
+A cloudwatch agent - define your own metrics
+CloudWatch Logs allows you to monitor operating system and application logs.
+All ec2 instances send key health and performance metrics to CloudWatch.
+Defualt host-level metrics consist of : CPU, network, disk and status check
+Metrics are stored indefinitely
+You can retrieve data from any EC2 or Elastic Load Balancer instance even after it has been terminated
+Operating system-level metrics:
+1. By deafault ec2 does not send operating system-level metrics to Cloudwatch
+2. Cloudwatch Agent: by installing the cloudwatch agent on your ec2 instances, you can collect operating system metrics and send them to cloudwatch
+3. Operating system Metrics: Memory usage, processes running on your instance, amount of free disk space, CPU idle time, etc.
 
+Metric frequency:
+by default ec2 sends metric date to cloudwatch in 5-minute intervals.
+For an additional charge you can enable detailed monitoring that sends metrics at 1-minute intervals.
+For custom metics, the default is 1-minute intervals, and you can configure high resolution metrics that are sent at 1 second interval.
 
+Monitoring system and application logs:
+Monitor log files: Monitor and troubleshoot your applications using existing system and application log files
+Customize for your application: Monitor your logs in near-real time for specific phrases, values or patterns. Requires the Cloudwatch agent
+Use Cases: Track the number of errors that occur in your application log and send yourself a notification whenever the rate of errors exceeds a threshold you specify.
+
+Alarms:
+you can create an alarm to monitor any Amazon CloudWatch metric in your account
+Alarms: This can include EC2 utiliztion, ELB latency or even the charges on your AWS bill
+Thresholds: You can set appropriate thresholds to trigger the alarms and actions to be taken if an alarm state is reached
+Use Cases: You can set an alarm that sends you a notification or executes an Auto-scaling policy if CPU utilization exceeds 90% on your EC2 instance for more than 5 minutes
 
 
 
