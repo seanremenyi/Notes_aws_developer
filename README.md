@@ -1702,6 +1702,23 @@ Alarms: This can include EC2 utiliztion, ELB latency or even the charges on your
 Thresholds: You can set appropriate thresholds to trigger the alarms and actions to be taken if an alarm state is reached
 Use Cases: You can set an alarm that sends you a notification or executes an Auto-scaling policy if CPU utilization exceeds 90% on your EC2 instance for more than 5 minutes
 
+## CloudTrail
+records user activity in your AWS account
+CloudTrail records events related to creation, modification or deletion of resources( such as iam users, s3 buckets and ec2 instance)
+by default you can view the last 90 days of activity
+
+
+Cloud watch is about
+- performance and metrics
+- cloudwatch logs (for error messages and warnings)
+- cloudwatch alarms
+Cloudtrail
+- record api calls for your aws account
+- delivers log files conating API calls to an s3 bucket
+- Can be integrated with CloudWAtch logs.
+Understand the difference
+- do you need to monitor the performance and health of your resources (cloudwatch)
+- do you need an audit log of user activity in you aws account (cloudtrail) 
 
 
 
